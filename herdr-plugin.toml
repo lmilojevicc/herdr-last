@@ -1,0 +1,28 @@
+id = "herdr-last"
+name = "herdr-last"
+version = "0.1.0"
+min_herdr_version = "0.7.0"
+description = "Plugin to toggle back to the previously active tab or workspace in Herdr"
+platforms = ["linux", "macos"]
+
+[[build]]
+platforms = ["linux", "macos"]
+command = ["bash", "scripts/install.sh"]
+
+[[actions]]
+id = "toggle-workspace"
+title = "Toggle Last Workspace"
+command = ["./bin/herdr-last", "toggle-workspace"]
+
+[[actions]]
+id = "toggle-tab"
+title = "Toggle Last Tab"
+command = ["./bin/herdr-last", "toggle-tab"]
+
+[[events]]
+on = "workspace.focused"
+command = ["./bin/herdr-last", "event", "workspace.focused"]
+
+[[events]]
+on = "tab.focused"
+command = ["./bin/herdr-last", "event", "tab.focused"]

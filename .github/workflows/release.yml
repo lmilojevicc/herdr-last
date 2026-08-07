@@ -1,0 +1,82 @@
+name: Release binaries
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Validate and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
+        with:
+          go-version-file: go.mod
+          cache: false
+
+      - name: Check installer
+        run: |
+          bash -n scripts/install.sh
+          bash -n scripts/install_test.sh
+          bash scripts/install_test.sh
+
+      - name: Validate versions
+        shell: bash
+        run: |
+          manifest_version="$(awk -F ' *= *' '$1 == "version" { gsub(/"/, "", $2); print $2; exit }' herdr-plugin.toml)"
+          test "${GITHUB_REF_NAME}" = "v${manifest_version}"
+          test "$(go run . version)" = "herdr-last v${manifest_version}"
+
+      - name: Test
+        run: go test ./...
+
+      - name: Build release assets
+        env:
+          CGO_ENABLED: "0"
+        run: |
+          mkdir -p dist
+          GOOS=darwin GOARCH=arm64 go build -trimpath -ldflags="-s -w" -o dist/herdr-last-darwin-arm64 .
+          GOOS=darwin GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o dist/herdr-last-darwin-amd64 .
+          GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o dist/herdr-last-linux-amd64 .
+          GOOS=linux GOARCH=arm64 go build -trimpath -ldflags="-s -w" -o dist/herdr-last-linux-arm64 .
+          test "$(dist/herdr-last-linux-amd64 version)" = "herdr-last ${GITHUB_REF_NAME}"
+          (cd dist && sha256sum herdr-last-* > SHA256SUMS)
+          test "$(find dist -maxdepth 1 -type f | wc -l)" -eq 5
+
+      - name: Upload release assets
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: release-assets
+          path: dist/
+          if-no-files-found: error
+          retention-days: 1
+
+  publish:
+    name: Publish release
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - name: Download release assets
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: release-assets
+          path: release-assets
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" release-assets/* --verify-tag --generate-notes --repo "$GITHUB_REPOSITORY"

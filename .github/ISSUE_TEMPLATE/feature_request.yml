@@ -1,0 +1,32 @@
+name: Feature request
+description: Suggest an idea or improvement for herdr-last
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What workspace or tab history problem would this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: What would you like herdr-last to do?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Describe any Herdr configuration, command, or workflow alternatives you tried.
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Add any relevant examples, links, or configuration.
+    validations:
+      required: false

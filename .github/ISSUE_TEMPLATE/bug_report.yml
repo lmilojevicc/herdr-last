@@ -1,0 +1,103 @@
+name: Bug report
+description: Report a problem with herdr-last
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a problem with herdr-last. Include enough detail
+        to reproduce the workspace or tab history failure.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened, and which herdr-last action or command was involved?
+    validations:
+      required: true
+  - type: input
+    id: herdr-version
+    attributes:
+      label: Herdr version
+      description: Output of `herdr --version`.
+      placeholder: "herdr 0.8.0"
+    validations:
+      required: true
+  - type: input
+    id: herdr-last-version
+    attributes:
+      label: herdr-last version
+      description: Output of `bin/herdr-last version`, plus the release tag or commit if known.
+      placeholder: "herdr-last v0.1.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: installation
+    attributes:
+      label: Installation method
+      options:
+        - Herdr plugin install
+        - Downloaded release binary
+        - Locally linked source build
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: action
+    attributes:
+      label: Affected command
+      options:
+        - toggle-workspace
+        - toggle-tab
+        - event hook
+        - daemon
+        - installation or build
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: List the focused workspaces/tabs and the exact action or command that triggers the problem.
+      placeholder: |
+        1. Focus workspace A, then workspace B.
+        2. Invoke `herdr-last.toggle-workspace`.
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs and command output
+      description: Include relevant stdout/stderr and `herdr plugin log herdr-last` output.
+      render: shell
+    validations:
+      required: false
+  - type: textarea
+    id: config
+    attributes:
+      label: Relevant Herdr configuration and environment
+      description: Include relevant plugin keybindings and HERDR_SOCKET_PATH or HERDR_PLUGIN_STATE_DIR overrides. Remove secrets.
+      render: toml
+    validations:
+      required: false
+  - type: input
+    id: platform
+    attributes:
+      label: Operating system and architecture
+      description: Output of `uname -s` and `uname -m`.
+      placeholder: "Darwin / arm64"
+    validations:
+      required: true
