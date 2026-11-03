@@ -8,6 +8,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build:
     name: Validate and build
@@ -23,6 +27,7 @@ jobs:
       - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
         with:
           go-version-file: go.mod
+          # Release builds stay uncached on purpose.
           cache: false
 
       - name: Check installer
@@ -40,6 +45,9 @@ jobs:
 
       - name: Test
         run: go test ./...
+
+      - name: Vet
+        run: go vet ./...
 
       - name: Build release assets
         env:
